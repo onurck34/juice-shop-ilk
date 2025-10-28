@@ -2,6 +2,8 @@ name: "CodeQL Scan"
 
 on:
   push:
+    paths-ignore:
+        - ".github/workflows/**"   # sadece workflow dosyası değiştiyse CI tetiklenmesin
   pull_request:
 
 jobs:
