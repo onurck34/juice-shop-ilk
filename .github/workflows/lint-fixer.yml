@@ -1,6 +1,9 @@
 name: "Let me lint:fix that for you"
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+        - ".github/workflows/**"   # sadece workflow dosyası değiştiyse CI tetiklenmesin
 
 jobs:
   LMLFTFY:
