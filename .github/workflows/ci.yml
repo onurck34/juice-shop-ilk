@@ -5,6 +5,7 @@ on:
       - l10n_develop
       - gh-pages
     paths-ignore:
+      - ".github/workflows/**"   # sadece workflow dosyası değiştiyse CI tetiklenmesin
       - '*.md'
       - 'LICENSE'
       - 'monitoring/grafana-dashboard.json'
