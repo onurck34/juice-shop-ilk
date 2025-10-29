@@ -8,7 +8,7 @@ on:
   schedule:
     - cron: "0 3 * * 1"   # Her Pazartesi 06:00 TR (UTC+3)
   workflow_dispatch:
-   
+    
 permissions:
   contents: read
   actions: read
