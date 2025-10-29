@@ -1,0 +1,6 @@
+# test-only: trufflehog detection test
+secrets:
+  generic_token: "TRUFFLEHOG_TEST_TOKEN_2025_ABCdef1234567890"
+  aws_access_key_id: "AKIAEXAMPLETOKEN2025"          # AWS-like pattern
+  aws_secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+  github_token: "ghp_TRUFFLEHOG_TEST_abcdefghijklmn"
