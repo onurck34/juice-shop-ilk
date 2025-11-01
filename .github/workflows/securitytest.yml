@@ -1,7 +1,7 @@
 name: Security Pipeline (SAST, Secrets, Container)
 
 on:
-  push:
+  # push:
   #   branches: [ "main", "master" ]
   # pull_request:
   #   branches: [ "main", "master" ]
