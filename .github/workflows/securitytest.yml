@@ -2,11 +2,11 @@ name: Security Pipeline (SAST, Secrets, Container)
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  schedule:
-    - cron: "0 3 * * 1"   # Her Pazartesi 06:00 TR (UTC+3)
+  #   branches: [ "main", "master" ]
+  # pull_request:
+  #   branches: [ "main", "master" ]
+  # schedule:
+  #   - cron: "0 3 * * 1"   # Her Pazartesi 06:00 TR (UTC+3)
   workflow_dispatch:
     
 permissions:
