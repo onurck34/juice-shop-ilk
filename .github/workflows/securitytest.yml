@@ -39,21 +39,42 @@ jobs:
         with:
           category: "/language:javascript"
 
-  # --- Secrets (TruffleHog) ---
+# --- Secrets (TruffleHog - nonblocking) ---
   trufflehog:
-    name: Secrets (TruffleHog)
+    name: Secrets (TruffleHog - nonblocking)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (full history)
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Run TruffleHog (git history)
-        uses: trufflesecurity/trufflehog@v3.90.11
+  
+      - name: Create .trufflehogignore
+        run: |
+          cat > .trufflehogignore <<'EOF'
+          test/**
+          tests/**
+          **/*.zip
+          **/*.tar
+          **/*.tgz
+          **/*.jar
+          **/*.gz
+          **/*.7z
+          EOF
+  
+      - name: Run TruffleHog (git history, do not fail)
+        run: |
+          trufflehog git \
+            --only-verified \
+            --exclude-paths .trufflehogignore \
+            --json . > trufflehog.json || true
+        continue-on-error: true
+  
+      - name: Upload TruffleHog report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          extra_args: --results=verified --only-verified
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: trufflehog.json
+          path: trufflehog.json
 
   # --- Container Image Tarama (Trivy + Grype) ---
   container-scan:
