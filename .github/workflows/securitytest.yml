@@ -39,42 +39,54 @@ jobs:
         with:
           category: "/language:javascript"
 
-# --- Secrets (TruffleHog - nonblocking) ---
+  # --- Secrets (TruffleHog) ---
   trufflehog:
-    name: Secrets (TruffleHog - nonblocking)
+    name: Secrets (TruffleHog - git + filesystem)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-  
+
       - name: Create .trufflehogignore
         run: |
           cat > .trufflehogignore <<'EOF'
-          test/**
-          tests/**
+          # binary / big files to ignore
           **/*.zip
           **/*.tar
           **/*.tgz
           **/*.jar
           **/*.gz
           **/*.7z
+          # test/**  <-- eğer test klasörüne dummy koymadıysan bu satırı bırakabilirsin
           EOF
-  
-      - name: Run TruffleHog (git history, do not fail)
+
+      - name: Install TruffleHog
         run: |
-          trufflehog git \
-            --only-verified \
+          # Bu adım Actions runner üzerinde TruffleHog kurar (workflow içinde çalıştırıyoruz)
+          pip install trufflehog
+
+      - name: Run TruffleHog - git history (do not fail workflow)
+        run: |
+          trufflehog git . \
             --exclude-paths .trufflehogignore \
-            --json . > trufflehog.json || true
-        continue-on-error: true
-  
-      - name: Upload TruffleHog report
+            --json > trufflehog_git.json || true
+
+      - name: Run TruffleHog - filesystem (current checkout)
+        run: |
+          trufflehog filesystem . \
+            --exclude-paths .trufflehogignore \
+            --json > trufflehog_fs.json || true
+
+      - name: Upload TruffleHog reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: trufflehog.json
-          path: trufflehog.json
+          name: trufflehog-reports
+          path: |
+            trufflehog_git.json
+            trufflehog_fs.json
 
   # --- Container Image Tarama (Trivy + Grype) ---
   container-scan:
