@@ -62,58 +62,9 @@ jobs:
         with:
           sarif_file: gitleaks.sarif
 
-  # --- Secrets (TruffleHog) ---
-  trufflehog:
-    name: Secrets (TruffleHog - git + filesystem)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository (full history)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create .trufflehogignore
-        run: |
-          cat > .trufflehogignore <<'EOF'
-          # binary / big files to ignore
-          **/*.zip
-          **/*.tar
-          **/*.tgz
-          **/*.jar
-          **/*.gz
-          **/*.7z
-          # test/**  <-- eğer test klasörüne dummy koymadıysan bu satırı bırakabilirsin
-          EOF
-
-      - name: Install TruffleHog
-        run: |
-          # Bu adım Actions runner üzerinde TruffleHog kurar (workflow içinde çalıştırıyoruz)
-          pip install trufflehog
-
-      - name: Run TruffleHog - git history (do not fail workflow)
-        run: |
-          trufflehog git . \
-            --exclude-paths .trufflehogignore \
-            --json > trufflehog_git.json || true
-
-      - name: Run TruffleHog - filesystem (current checkout)
-        run: |
-          trufflehog filesystem . \
-            --exclude-paths .trufflehogignore \
-            --json > trufflehog_fs.json || true
-
-      - name: Upload TruffleHog reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trufflehog-reports
-          path: |
-            trufflehog_git.json
-            trufflehog_fs.json
-
-  # --- Container Image Tarama (Trivy + Grype) ---
+  # --- Container Image Tarama (Trivy) ---
   container-scan:
-    name: Container Scan (Trivy + Grype)
+    name: Container Scan (Trivy)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -139,16 +90,3 @@ jobs:
         with:
           sarif_file: trivy.sarif
           category: trivy
-
-      - name: Grype scan (image)
-        run: |
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            anchore/grype:latest \
-            app-under-test:ci -o sarif > grype.sarif || true
-
-      - name: Upload SARIF (Grype)
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: grype.sarif
-          category: grype
